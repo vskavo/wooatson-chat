@@ -24,7 +24,7 @@
   `;
   chatBox.innerHTML = `
     <div style="padding: 10px; background: #0078D7; color: white;">Chat</div>
-    <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto;"></div>
+    <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column;"></div>
     <form id="chat-form" style="display: flex; border-top: 1px solid #ccc;">
       <input type="text" id="chat-input" placeholder="Escribe tu mensaje..."
         style="flex: 1; padding: 10px; border: none;">
@@ -44,7 +44,7 @@
   function appendMessage(sender, text) {
     const div = document.createElement('div');
     div.className = sender === 'Tú' ? 'user-message' : 'bot-message';
-    div.innerHTML = `<strong>${sender}:</strong> ${linkify(text)}`;
+    div.innerHTML = `<strong>${sender}:</strong><br>${renderMarkdown(text)}`;
     div.style.marginBottom = '10px';
     div.style.background = sender === 'Tú' ? '#e0f0ff' : '#f1f1f1';
     div.style.padding = '8px';
@@ -55,9 +55,15 @@
     messages.scrollTop = messages.scrollHeight;
   }
 
-  function linkify(text) {
-    const urlRegex = /(https?:\/\/[\w.-]+(?:\.[\w\.-]+)+(?:[\w\-._~:/?#\[\]@!$&'()*+,;=.]+)?)/g;
-    return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
+  function renderMarkdown(text) {
+    let html = text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>')
+      .replace(/\!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" style="max-width:100%; margin-top:8px;"/>')
+      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
+      .replace(/(https?:\/\/[\w.-]+(?:\.[\w\.-]+)+(?:[\w\-._~:/?#\[\]@!$&'()*+,;=.]+)?)/g, '<a href="$1" target="_blank">$1</a>');
+    return html;
   }
 
   function generateSessionId() {
