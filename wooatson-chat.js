@@ -67,11 +67,21 @@
     input.value = '';
     appendMessage('Tú', question);
 
+    const searchParams = new URLSearchParams(window.location.search);
+    const searchQuery = searchParams.get('s') || searchParams.get('q');
+    const referrer = document.referrer;
+    const slug = window.location.pathname;
+
     const payload = {
       sessionId: generateSessionId(),
-      domain: window.location.href,
+      domain: DOMAIN,
       pageUrl: window.location.href,
-      question: question
+      question: question,
+      context: {
+        referrer: referrer,
+        searchQuery: searchQuery,
+        productSlug: slug
+      }
     };
 
     try {
