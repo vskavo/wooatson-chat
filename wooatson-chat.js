@@ -69,7 +69,7 @@
 
     const payload = {
       sessionId: generateSessionId(),
-      domain: DOMAIN,
+      domain: 'https://' + DOMAIN,
       pageUrl: window.location.href,
       question: question
     };
