@@ -1,4 +1,3 @@
-
 // wooatson-chat.js
 
 (function () {
@@ -44,10 +43,21 @@
 
   function appendMessage(sender, text) {
     const div = document.createElement('div');
-    div.textContent = `${sender}: ${text}`;
+    div.className = sender === 'Tú' ? 'user-message' : 'bot-message';
+    div.innerHTML = `<strong>${sender}:</strong> ${linkify(text)}`;
     div.style.marginBottom = '10px';
+    div.style.background = sender === 'Tú' ? '#e0f0ff' : '#f1f1f1';
+    div.style.padding = '8px';
+    div.style.borderRadius = '8px';
+    div.style.maxWidth = '90%';
+    div.style.alignSelf = sender === 'Tú' ? 'flex-end' : 'flex-start';
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
+  }
+
+  function linkify(text) {
+    const urlRegex = /(https?:\/\/[\w.-]+(?:\.[\w\.-]+)+(?:[\w\-._~:/?#\[\]@!$&'()*+,;=.]+)?)/g;
+    return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
   }
 
   function generateSessionId() {
