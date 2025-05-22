@@ -2,7 +2,7 @@
 // wooatson-chat.js
 
 (function () {
-  const DOMAIN = window.location.hostname;
+  const DOMAIN = window.location.origin;
   const API_URL = 'https://wooatson-client-agent.azurewebsites.net/api/wooatsonclientagent';
 
   // Crear la burbuja de chat
@@ -69,7 +69,7 @@
 
     const payload = {
       sessionId: generateSessionId(),
-      domain: 'https://' + DOMAIN,
+      domain: DOMAIN,
       pageUrl: window.location.href,
       question: question
     };
