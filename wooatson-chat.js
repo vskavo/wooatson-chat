@@ -42,11 +42,18 @@
   const form = chatBox.querySelector('#chat-form');
 
   function appendMessage(sender, text) {
+    // Detectar si el mensaje es HTML puro (bloque ```html ... ```
+    const htmlBlock = text.match(/```html\n([\s\S]*?)```/i);
     const div = document.createElement('div');
-    div.className = sender === 'Tú' ? 'user-message' : 'bot-message';
-    div.innerHTML = `<strong>${sender}:</strong><br>${renderMarkdown(text)}`;
+    if (htmlBlock && sender !== 'Tú') {
+      div.className = 'bot-message';
+      div.innerHTML = htmlBlock[1].trim(); // Mostrar solo el HTML, sin encabezado ni salto de línea
+    } else {
+      div.className = sender === 'Tú' ? 'user-message' : 'bot-message';
+      div.innerHTML = `<strong>${sender}:</strong><br>${renderMarkdown(text)}`;
+      div.style.background = sender === 'Tú' ? '#e0f0ff' : '#f1f1f1';
+    }
     div.style.marginBottom = '10px';
-    div.style.background = sender === 'Tú' ? '#e0f0ff' : '#f1f1f1';
     div.style.padding = '8px';
     div.style.borderRadius = '8px';
     div.style.maxWidth = '90%';
