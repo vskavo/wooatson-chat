@@ -56,13 +56,44 @@
   }
 
   function renderMarkdown(text) {
+    // Si el texto viene en un bloque de código HTML, renderizar el HTML tal cual
+    const htmlBlock = text.match(/```html\n([\s\S]*?)```/i);
+    if (htmlBlock) {
+      return htmlBlock[1];
+    }
+
     let html = text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\n\n/g, '<br><br>')
-      .replace(/\n/g, '<br>')
-      .replace(/\!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" style="max-width:100%; margin-top:8px;"/>')
+      // Títulos Markdown (###, ##, #)
+      .replace(/^### (.*)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.*)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.*)$/gm, '<h1>$1</h1>')
+      // Listas numeradas
+      .replace(/^\s*\d+\. (.*)$/gm, '<li>$1</li>')
+      // Listas con guion
+      .replace(/^\s*[-•] (.*)$/gm, '<li>$1</li>')
+      // Imágenes ![alt](url)
+      .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" style="max-width:100%; margin-top:8px;"/>')
+      // Enlaces [texto](url)
       .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
-      .replace(/(https?:\/\/[\w.-]+(?:\.[\w\.-]+)+(?:[\w\-._~:/?#\[\]@!$&'()*+,;=.]+)?)/g, '<a href="$1" target="_blank">$1</a>');
+      // URLs sueltas
+      .replace(/(https?:\/\/[\w.-]+(?:\.[\w\.-]+)+(?:[\w\-._~:/?#\[\]@!$&'()*+,;=.]+)?)/g, '<a href="$1" target="_blank">$1</a>')
+      // Negritas **texto**
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      // Saltos de línea dobles a <br><br>
+      .replace(/\n\n/g, '<br><br>')
+      // Saltos de línea simples a <br>
+      .replace(/\n/g, '<br>');
+
+    // Convertir <li> sueltos en listas <ul> o <ol>
+    html = html.replace(/(<li>.*?<\/li>)/gs, function(match) {
+      // Si hay números al inicio, usar <ol>, si no, <ul>
+      if (/\d+\./.test(match)) {
+        return '<ol>' + match + '</ol>';
+      } else {
+        return '<ul>' + match + '</ul>';
+      }
+    });
+
     return html;
   }
 
