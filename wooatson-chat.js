@@ -4,31 +4,66 @@
   const DOMAIN = window.location.origin;
   const API_URL = 'https://wooatson-client-agent.azurewebsites.net/api/wooatsonclientagent';
 
-  // Crear la burbuja de chat
+  // Leer configuración global si existe
+  const config = window.WooAtsonChatConfig || {};
+
+  // --- Personalización de la burbuja ---
   const bubble = document.createElement('div');
-  bubble.innerText = '💬';
-  Object.assign(bubble.style, {
-    position: 'fixed', bottom: '20px', right: '20px',
+  // Permitir texto, emoji o imagen personalizada
+  if (config.bubbleImage) {
+    const img = document.createElement('img');
+    img.src = config.bubbleImage;
+    img.alt = config.bubbleAlt || 'Chat';
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'cover';
+    bubble.appendChild(img);
+  } else {
+    bubble.innerText = config.bubbleText || '💬';
+  }
+  // Posición flexible
+  const position = config.bubblePosition || 'bottom-right';
+  const positionStyles = {
+    'bottom-right': { bottom: '20px', right: '20px', top: '', left: '' },
+    'bottom-left': { bottom: '20px', left: '20px', top: '', right: '' },
+    'top-right': { top: '20px', right: '20px', bottom: '', left: '' },
+    'top-left': { top: '20px', left: '20px', bottom: '', right: '' }
+  };
+  const defaultBubbleStyle = {
+    position: 'fixed',
     width: '60px', height: '60px', background: '#0078D7',
     color: 'white', fontSize: '30px', textAlign: 'center',
-    lineHeight: '60px', borderRadius: '50%', cursor: 'pointer', zIndex: 9999
-  });
+    lineHeight: '60px', borderRadius: '50%', cursor: 'pointer', zIndex: 9999,
+    ...positionStyles[position]
+  };
+  Object.assign(bubble.style, defaultBubbleStyle, config.bubbleStyle || {});
+  if (config.bubbleTooltip) bubble.title = config.bubbleTooltip;
   document.body.appendChild(bubble);
 
-  // Crear la ventana de chat
+  // --- Personalización de la ventana de chat ---
   const chatBox = document.createElement('div');
-  chatBox.style = `
-    position: fixed; bottom: 90px; right: 20px; width: 300px; height: 400px;
-    background: white; border: 1px solid #ccc; border-radius: 10px;
-    display: none; flex-direction: column; font-family: sans-serif; z-index: 9999;
-  `;
+  const defaultChatBoxStyle = {
+    position: 'fixed',
+    width: '300px', height: '400px', background: 'white',
+    border: '1px solid #ccc', borderRadius: '10px',
+    display: 'none', flexDirection: 'column', fontFamily: 'sans-serif', zIndex: 9999,
+    boxShadow: '0 2px 16px rgba(0,0,0,0.08)'
+  };
+  // Posición de la ventana igual que la burbuja
+  Object.assign(defaultChatBoxStyle, positionStyles[position]);
+  if (defaultChatBoxStyle.bottom) defaultChatBoxStyle.bottom = (parseInt(defaultChatBoxStyle.bottom) + 70) + 'px';
+  if (defaultChatBoxStyle.top) defaultChatBoxStyle.top = (parseInt(defaultChatBoxStyle.top) + 70) + 'px';
+  Object.assign(chatBox.style, defaultChatBoxStyle, config.chatBoxStyle || {});
+
   chatBox.innerHTML = `
-    <div style="padding: 10px; background: #0078D7; color: white;">Chat</div>
+    <div id="chat-header" style="padding: 10px; background: ${config.headerBg || '#0078D7'}; color: ${config.headerColor || 'white'}; border-radius: 10px 10px 0 0; font-weight: bold;">
+      ${config.headerText || 'Chat'}
+    </div>
     <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column;"></div>
     <form id="chat-form" style="display: flex; border-top: 1px solid #ccc;">
-      <input type="text" id="chat-input" placeholder="Escribe tu mensaje..."
+      <input type="text" id="chat-input" placeholder="${config.inputPlaceholder || 'Escribe tu mensaje...'}"
         style="flex: 1; padding: 10px; border: none;">
-      <button type="submit" style="background: #0078D7; color: white; border: none; padding: 0 15px;">Enviar</button>
+      <button type="submit" style="background: ${config.buttonBg || '#0078D7'}; color: ${config.buttonColor || 'white'}; border: none; padding: 0 15px;">${config.buttonText || 'Enviar'}</button>
     </form>
   `;
   document.body.appendChild(chatBox);
